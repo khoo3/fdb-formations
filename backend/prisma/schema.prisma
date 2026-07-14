@@ -1,13 +1,93 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+// --- LES TABLES ---
+
+// 1. Table Utilisateurs (Étudiants et Instructeurs)
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(STUDENT) // Par défaut, un inscrit est un étudiant
+  createdAt DateTime @default(now())
+
+  // Relations (Liens avec les autres tables)
+  coursesCreated Course[]     @relation("InstructorCourses")
+  enrollments    Enrollment[]
+  lessonProgresses LessonProgress[]
+}
+
+// Les différents rôles possibles
+enum Role {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+}
+
+// 2. Table Formations (Courses)
+model Course {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  price       Float    @default(0.0) // 0 si c'est gratuit
+  accessKey   String   @default("EDUTEST") 
+  createdAt   DateTime @default(now())
+
+  // Relation avec le créateur (Instructeur)
+  instructorId Int
+  instructor   User         @relation("InstructorCourses", fields: [instructorId], references: [id])
+  
+  // Contenu du cours
+  lessons      Lesson[]
+  enrollments  Enrollment[]
+}
+
+// 3. Table Leçons (Vidéos et contenu)
+model Lesson {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String?  @db.Text // Description texte de la leçon
+  videoUrl  String?  // Lien de la vidéo
+  order     Int      @default(0) // L'ordre de la leçon dans la formation
+
+  // Relation avec la formation
+  courseId  Int
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progresses       LessonProgress[]
+}
+
+// 4. Table des inscriptions (Qui achète/suit quelle formation)
+model Enrollment {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  
+  courseId  Int
+  course    Course   @relation(fields: [courseId], references: [id])
+
+  // Un utilisateur ne peut s'inscrire qu'une seule fois au même cours
+  @@unique([userId, courseId]) 
+}
+
+// 5. Table de progression (Qui a terminé quelle leçon)
+model LessonProgress {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  lessonId  Int
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  // Un utilisateur ne peut terminer une leçon qu'une seule fois
+  @@unique([userId, lessonId])
 }
