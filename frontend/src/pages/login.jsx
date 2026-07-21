@@ -2,6 +2,7 @@ import { useState } from 'react';
 import axios from 'axios'; // Importation d'axios
 import { useNavigate } from 'react-router-dom';
 
+
 export default function Login() {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
@@ -32,7 +33,7 @@ export default function Login() {
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
         
-        navigate('/dashboard');
+        navigate('/Home'); // TODO: Bientôt, on redirigera l'utilisateur vers son Dashboard ici !
         // TODO: Bientôt, on redirigera l'utilisateur vers son Dashboard ici !
 
       } else {
@@ -60,16 +61,16 @@ export default function Login() {
       <section className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-blue-600">
         <div 
           className="absolute inset-0 z-0 bg-cover bg-center opacity-40" 
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop')" }}
+          style={{ backgroundImage: "url('https://toyotamaterialhandling-international.com/storage/CADA05EDC4097C0C622D13BB72D608DF246FE552BA02346ACAA4B5E756DE4ACA/518ff646ddeb41c282f49be249acd61b/png/media/39122e64c9fb4d69b14e2a5efa471e33/Service.png')" }}
         ></div>
         <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/80 to-transparent"></div>
         <div className="relative z-10 flex flex-col justify-between p-12 w-full text-white">
           <div className="flex items-center gap-2">
-            <span className="text-3xl font-bold tracking-tight">FD Bazas</span>
+            <span className="text-3xl font-bold tracking-tight">FDB Formations</span>
           </div>
           <div className="max-w-md mb-20">
             <h2 className="text-5xl font-bold mb-6 leading-tight">Maîtrisez vos compétences techniques.</h2>
-            <p className="text-lg text-blue-100">Rejoigne notre platforme pour atteignent votre objectifs professionnels.</p>
+            <p className="text-lg text-blue-100">Rejoigne notre platforme pour atteignent vos objectifs professionnels.</p>
           </div>
         </div>
       </section>

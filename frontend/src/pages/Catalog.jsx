@@ -80,24 +80,43 @@ export default function Catalog() {
           <p className="text-center text-slate-500 mt-20">Chargement des formations...</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {courses.map((course) => (
-              <div key={course.id} className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-lg transition-all flex flex-col">
-                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6 font-bold text-xl">
-                  {course.title.charAt(0)}
+           {courses.map((course) => (
+              <div key={course.id} className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg transition-all flex flex-col overflow-hidden group">
+                
+                {/* LA NOUVELLE IMAGE DE COUVERTURE */}
+                <div className="h-48 relative overflow-hidden bg-slate-100">
+                  <img 
+                    src={course.imageUrl} 
+                    alt={course.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  {/* Petit badge gratuit */}
+                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-blue-600">
+                    Gratuit
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold mb-2 line-clamp-1">{course.title}</h3>
-                <p className="text-slate-500 text-sm mb-6 line-clamp-2 flex-1">{course.description}</p>
-                <div className="flex justify-between items-center pt-4 border-t border-slate-100">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                    Par {course.instructor?.name || "Instructeur"}
-                  </span>
-                  <button 
-                    onClick={() => setSelectedCourse(course)}
-                    className="px-4 py-2 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-blue-600 transition-colors"
-                  >
-                    Rejoindre
-                  </button>
+
+                {/* LE TEXTE EN DESSOUS */}
+                <div className="p-6 flex flex-col flex-1">
+                  <h3 className="text-xl font-bold mb-2 line-clamp-1">{course.title}</h3>
+                  <p className="text-slate-500 text-sm mb-6 line-clamp-2 flex-1">{course.description}</p>
+                  
+                  <div className="flex justify-between items-center pt-4 border-t border-slate-100 mt-auto">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                      <div className="w-6 h-6 bg-slate-200 rounded-full flex items-center justify-center text-slate-600">
+                        {course.instructor?.name?.charAt(0) || "P"}
+                      </div>
+                      {course.instructor?.name || "Professeur"}
+                    </span>
+                    <button 
+                      onClick={() => setSelectedCourse(course)}
+                      className="px-4 py-2 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-blue-600 transition-colors"
+                    >
+                      Débloquer
+                    </button>
+                  </div>
                 </div>
+
               </div>
             ))}
           </div>

@@ -10,22 +10,23 @@ const prisma = new PrismaClient({ adapter });
 // --- CRÉER UNE FORMATION ---
 exports.createCourse = async (req, res) => {
   try {
-    const { title, description, accessKey } = req.body; // on récupère accessKey, on enlève price (c'est gratuit)
+    const { title, description, accessKey, imageUrl } = req.body; // <-- On récupère imageUrl
     const instructorId = req.user.userId; 
 
     const newCourse = await prisma.course.create({
       data: {
         title,
         description,
-        price: 0, // Toujours gratuit
-        accessKey: accessKey || "SECRET123", // Clé par défaut si non fournie
+        price: 0,
+        accessKey: accessKey || "SECRET123",
+        imageUrl: imageUrl || undefined, // <-- On l'envoie à Prisma
         instructorId
       }
     });
 
-    res.status(201).json({ message: "Formation créée avec succès !", course: newCourse });
+    res.status(201).json({ message: "Formation créée !", course: newCourse });
   } catch (error) {
-    res.status(500).json({ message: "Erreur lors de la création.", error: error.message });
+    res.status(500).json({ message: "Erreur.", error: error.message });
   }
 };
 
@@ -96,26 +97,32 @@ exports.unlockCourse = async (req, res) => {
 };
 
 // --- RÉCUPÉRER LES FORMATIONS DÉBLOQUÉES PAR L'ÉTUDIANT ---
+// --- RÉCUPÉRER LES FORMATIONS DÉBLOQUÉES PAR L'ÉTUDIANT ---
 exports.getMyCourses = async (req, res) => {
   try {
     const userId = req.user.userId;
 
-    // On cherche toutes les inscriptions de cet utilisateur
     const enrollments = await prisma.enrollment.findMany({
       where: { userId },
+      orderBy: { createdAt: 'desc' }, // Trie de la plus récente à la plus ancienne
       include: {
-        // On inclut les données de la formation liée
         course: {
           include: {
-            instructor: { select: { name: true } } // On prend aussi le nom du prof
+            instructor: { select: { name: true } },
+            // NOUVEAU : On inclut les leçons ET la progression pour calculer le pourcentage
+            lessons: {
+              include: {
+                progresses: {
+                  where: { userId: userId }
+                }
+              }
+            }
           }
         }
       }
     });
 
-    // On extrait juste les "courses" du résultat
     const myCourses = enrollments.map(enrollment => enrollment.course);
-
     res.status(200).json(myCourses);
   } catch (error) {
     res.status(500).json({ message: "Erreur serveur.", error: error.message });
@@ -142,7 +149,13 @@ exports.getCourseById = async (req, res) => {
       where: { id: courseId },
       include: {
         lessons: {
-          orderBy: { order: 'asc' } // Trie les chapitres du 1 au dernier
+          orderBy: { order: 'asc' },
+          // NOUVEAU : On vérifie si l'utilisateur connecté a terminé ces leçons
+          include: {
+            progresses: {
+              where: { userId: userId }
+            }
+          }
         },
         instructor: { select: { name: true } }
       }
@@ -176,5 +189,52 @@ exports.getInstructorCourses = async (req, res) => {
     res.status(200).json(courses);
   } catch (error) {
     res.status(500).json({ message: "Erreur serveur.", error: error.message });
+  }
+};
+
+// --- MODIFIER UNE FORMATION ---
+exports.updateCourse = async (req, res) => {
+  try {
+    const courseId = parseInt(req.params.courseId);
+    const { title, description, accessKey, imageUrl } = req.body;
+
+    // 1. Vérifier que c'est bien l'auteur du cours
+    const course = await prisma.course.findUnique({ where: { id: courseId } });
+    if (!course || course.instructorId !== req.user.userId) {
+      return res.status(403).json({ message: "Accès refusé." });
+    }
+
+    // 2. Mettre à jour
+    const updatedCourse = await prisma.course.update({
+      where: { id: courseId },
+      data: { title, description, accessKey, imageUrl }
+    });
+
+    res.status(200).json({ message: "Formation mise à jour !", course: updatedCourse });
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la modification.", error: error.message });
+  }
+};
+
+// --- SUPPRIMER UNE FORMATION ---
+exports.deleteCourse = async (req, res) => {
+  try {
+    const courseId = parseInt(req.params.courseId);
+
+    // 1. Vérifier la propriété
+    const course = await prisma.course.findUnique({ where: { id: courseId } });
+    if (!course || course.instructorId !== req.user.userId) {
+      return res.status(403).json({ message: "Accès refusé." });
+    }
+
+    // 2. Supprimer les inscriptions liées (pour éviter les erreurs de base de données)
+    await prisma.enrollment.deleteMany({ where: { courseId } });
+    
+    // 3. Supprimer le cours (les leçons seront supprimées automatiquement)
+    await prisma.course.delete({ where: { id: courseId } });
+
+    res.status(200).json({ message: "Formation supprimée avec succès." });
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la suppression.", error: error.message });
   }
 };

@@ -9,7 +9,7 @@ export default function InstructorPortal() {
   
   // États pour la création d'un nouveau cours
   const [isCreating, setIsCreating] = useState(false);
-  const [newCourse, setNewCourse] = useState({ title: '', description: '', accessKey: '' });
+  const [newCourse, setNewCourse] = useState({ title: '', description: '', accessKey: '', imageUrl: '' });
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -57,16 +57,8 @@ export default function InstructorPortal() {
     <div className="min-h-screen flex bg-slate-50 font-sans text-slate-800">
       
       {/* SIDEBAR GAUCHE */}
-      <aside className="hidden md:flex flex-col fixed left-0 top-0 h-screen w-64 bg-slate-900 text-white py-6 z-40">
-        <div className="px-6 mb-8 flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-bold text-xl">
-            E
-          </div>
-          <div>
-            <h1 className="font-bold text-lg leading-tight">Portail Instructeur</h1>
-            <p className="text-xs text-slate-400">EduFlow Studio</p>
-          </div>
-        </div>
+      <aside className="hidden md:flex flex-col fixed left-0 top-20 h-[calc(100vh-5rem)] w-64 bg-slate-900 text-white py-6 z-40">
+        
         
         <nav className="flex flex-col gap-2 px-4">
           <Link to="/dashboard" className="flex items-center gap-3 py-3 px-4 text-slate-300 hover:bg-slate-800 rounded-xl transition-colors">
@@ -89,18 +81,7 @@ export default function InstructorPortal() {
 
       {/* CONTENU PRINCIPAL */}
       <main className="md:ml-64 flex-1 pb-12">
-        <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-30">
-          <h2 className="text-xl font-bold">Tableau de Bord</h2>
-          <div className="flex items-center gap-3">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-bold">{user.name}</p>
-              <p className="text-[10px] text-blue-600 uppercase tracking-wider">Instructeur</p>
-            </div>
-            <div className="w-10 h-10 rounded-full bg-slate-200 border-2 border-blue-600 flex items-center justify-center font-bold">
-              {user.name.charAt(0)}
-            </div>
-          </div>
-        </header>
+        
 
         <div className="p-8 max-w-6xl mx-auto space-y-8">
           
@@ -195,6 +176,16 @@ export default function InstructorPortal() {
                   onChange={(e) => setNewCourse({...newCourse, accessKey: e.target.value.toUpperCase()})}
                   placeholder="Ex: PRO2026"
                   className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none font-mono uppercase" required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">Lien de l'image (URL)</label>
+                <input 
+                  type="url" 
+                  value={newCourse.imageUrl}
+                  onChange={(e) => setNewCourse({...newCourse, imageUrl: e.target.value})}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none" 
                 />
               </div>
               <div className="flex gap-3 pt-4">

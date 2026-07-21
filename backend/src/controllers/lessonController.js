@@ -87,3 +87,28 @@ exports.deleteLesson = async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la suppression.", error: error.message });
   }
 };
+
+// --- MARQUER UNE LEÇON COMME TERMINÉE / NON TERMINÉE ---
+exports.toggleProgress = async (req, res) => {
+  try {
+    const lessonId = parseInt(req.params.lessonId);
+    const userId = req.user.userId;
+
+    // On regarde si l'utilisateur a déjà terminé la leçon
+    const existingProgress = await prisma.lessonProgress.findUnique({
+      where: { userId_lessonId: { userId, lessonId } }
+    });
+
+    if (existingProgress) {
+      // S'il clique à nouveau, on décoche (supprime la progression)
+      await prisma.lessonProgress.delete({ where: { id: existingProgress.id } });
+      return res.status(200).json({ completed: false });
+    } else {
+      // Sinon on valide la leçon
+      await prisma.lessonProgress.create({ data: { userId, lessonId } });
+      return res.status(200).json({ completed: true });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Erreur serveur.", error: error.message });
+  }
+};

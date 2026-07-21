@@ -13,6 +13,10 @@ export default function CourseManager() {
   // Nouvel état pour savoir si on est en train de modifier une leçon existante
   const [editingLessonId, setEditingLessonId] = useState(null);
 
+  // États pour la modification du cours entier
+  const [isEditingCourse, setIsEditingCourse] = useState(false);
+  const [editCourseData, setEditCourseData] = useState({ title: '', description: '', accessKey: '', imageUrl: '' });
+
   const fetchCourse = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -93,18 +97,75 @@ export default function CourseManager() {
     }
   };
 
+  // --- MODIFIER LE COURS ---
+  const handleUpdateCourse = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`http://localhost:5000/api/courses/${courseId}`, editCourseData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert("Formation mise à jour !");
+      setIsEditingCourse(false);
+      fetchCourse(); // Rafraîchit les données affichées
+    } catch (error) {
+      alert("Erreur lors de la modification.");
+    }
+  };
+
+  // --- SUPPRIMER LE COURS ---
+  const handleDeleteCourse = async () => {
+    if (!window.confirm("⚠️ DANGER : Êtes-vous sûr de vouloir supprimer TOUTE la formation, ses vidéos et ses étudiants ?")) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:5000/api/courses/${courseId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert("Formation supprimée.");
+      navigate('/instructor'); // On le renvoie à l'accueil instructeur
+    } catch (error) {
+      alert("Erreur lors de la suppression.");
+    }
+  };
+
   if (!course) return <div className="p-8 text-center">Chargement...</div>;
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 p-8">
       <div className="max-w-5xl mx-auto">
         
-        <div className="mb-8 flex items-center justify-between">
+        {/* En-tête avec boutons CRUD pour le cours */}
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <Link to="/instructor" className="text-blue-600 font-bold hover:underline mb-2 inline-block">
               ← Retour au portail
             </Link>
             <h1 className="text-3xl font-bold text-slate-900">Gestion : {course.title}</h1>
+            <p className="text-slate-500">Ajoutez des chapitres ou modifiez les infos globales.</p>
+          </div>
+          
+          <div className="flex gap-2 shrink-0">
+            <button 
+              onClick={() => {
+                setEditCourseData({ 
+                  title: course.title, 
+                  description: course.description, 
+                  accessKey: course.accessKey, 
+                  imageUrl: course.imageUrl || '' 
+                });
+                setIsEditingCourse(true);
+              }}
+              className="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200 transition-colors"
+            >
+              ⚙️ Paramètres
+            </button>
+            <button 
+              onClick={handleDeleteCourse}
+              className="px-4 py-2 bg-red-100 text-red-600 font-bold rounded-lg hover:bg-red-200 transition-colors"
+            >
+              🗑️ Supprimer
+            </button>
           </div>
         </div>
 
@@ -220,6 +281,36 @@ export default function CourseManager() {
 
         </div>
       </div>
+      {/* MODALE DE PARAMÈTRES DU COURS */}
+      {isEditingCourse && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl animate-in zoom-in duration-200">
+            <h3 className="text-2xl font-bold mb-6">Paramètres de la formation</h3>
+            <form onSubmit={handleUpdateCourse} className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">Titre</label>
+                <input type="text" value={editCourseData.title} onChange={e => setEditCourseData({...editCourseData, title: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none" required />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">Description</label>
+                <textarea value={editCourseData.description} onChange={e => setEditCourseData({...editCourseData, description: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none h-24" required />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">Clé Secrète</label>
+                <input type="text" value={editCourseData.accessKey} onChange={e => setEditCourseData({...editCourseData, accessKey: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none font-mono uppercase" required />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">Lien de l'image (URL)</label>
+                <input type="url" value={editCourseData.imageUrl} onChange={e => setEditCourseData({...editCourseData, imageUrl: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none" />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button type="button" onClick={() => setIsEditingCourse(false)} className="w-1/2 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200">Annuler</button>
+                <button type="submit" className="w-1/2 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700">Sauvegarder</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

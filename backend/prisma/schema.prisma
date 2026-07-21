@@ -36,7 +36,11 @@ model Course {
   title       String
   description String?
   price       Float    @default(0.0) // 0 si c'est gratuit
-  accessKey   String   @default("EDUTEST") 
+  accessKey   String   @default("EDUTEST")
+
+  // Le lien de l'image de couverture
+  imageUrl    String?  @default("https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop") 
+  
   createdAt   DateTime @default(now())
 
   // Relation avec le créateur (Instructeur)
