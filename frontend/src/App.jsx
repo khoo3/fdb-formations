@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Navbar'; // <-- On importe notre Layout
 import Home from './pages/Home';
-import Login from './pages/Login';
+import Login from './pages/login';
 import Dashboard from './pages/Dashboard';
 import Catalog from './pages/Catalog';
 import CoursePlayer from './pages/CoursePlayer';
