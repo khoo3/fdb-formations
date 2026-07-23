@@ -2,6 +2,40 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
+// --- COMPOSANT : COMPTEUR ANIMÉ ---
+const AnimatedCounter = ({ end, prefix = "", suffix = "" }) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let startTimestamp = null;
+    const duration = 2000; // L'animation dure 2 secondes
+
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      // Courbe d'accélération pour un effet plus naturel (ease-out)
+      const easeOut = progress * (2 - progress); 
+      setCount(Math.floor(easeOut * end));
+
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      } else {
+        setCount(end);
+      }
+    };
+
+    window.requestAnimationFrame(step);
+  }, [end]);
+
+  return (
+    <span className="text-4xl md:text-5xl font-black text-slate-900 block mb-2">
+      {prefix}{count}{suffix}
+    </span>
+  );
+};
+
+
+// --- PAGE D'ACCUEIL PRINCIPALE ---
 export default function Home() {
   const [featuredCourses, setFeaturedCourses] = useState([]);
   const [user, setUser] = useState(null);
@@ -24,11 +58,10 @@ export default function Home() {
   return (
     <div className="w-full font-sans text-slate-800">
       
-      {/* 1. HERO SECTION (L'accroche principale) */}
+      {/* 1. HERO SECTION */}
       <section className="relative overflow-hidden bg-white">
-        {/* Décoration de fond (Cercle flou) */}
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
-        <div className="absolute top-0 left-0 -ml-20 mt-40 w-72 h-72 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
+        <div className="absolute top-0 left-0 -ml-20 mt-40 w-72 h-72 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
 
         <div className="max-w-7xl mx-auto px-8 pt-24 pb-20 relative z-10 text-center md:text-left grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
@@ -53,7 +86,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Image d'illustration à droite */}
           <div className="hidden md:block relative">
             <div className="absolute inset-0 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-[2.5rem] transform rotate-3 opacity-10"></div>
             <img 
@@ -61,7 +93,6 @@ export default function Home() {
               alt="Étudiants" 
               className="rounded-[2.5rem] shadow-2xl relative z-10 object-cover h-[500px] w-full"
             />
-            {/* Petit badge flottant */}
             <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-2xl shadow-xl z-20 flex items-center gap-4 animate-bounce">
               <div className="w-12 h-12 bg-green-100 text-green-600 flex justify-center items-center rounded-full text-2xl">✓</div>
               <div>
@@ -73,21 +104,46 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2. LOGOS / PREUVE SOCIALE */}
-      <section className="bg-slate-50 border-y border-slate-200 py-10">
+      {/* 2. NOUVELLE SECTION : STATISTIQUES ANIMÉES */}
+      <section className="bg-slate-50 border-y border-slate-200 py-16">
         <div className="max-w-7xl mx-auto px-8">
-          <p className="text-center text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Nos étudiants travaillent chez</p>
-          <div className="flex flex-wrap justify-center items-center gap-12 opacity-50 grayscale">
-            <span className="text-2xl font-black">Google</span>
-            <span className="text-2xl font-black">Microsoft</span>
-            <span className="text-2xl font-black">Amazon</span>
-            <span className="text-2xl font-black">Netflix</span>
-            <span className="text-2xl font-black">Spotify</span>
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-slate-900">Nos Chiffres</h2>
+            <p className="text-slate-500 mt-2">La communauté grandit chaque jour</p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 text-center divide-x divide-slate-200/60">
+            
+            <div className="flex flex-col items-center">
+              <AnimatedCounter end={40} prefix="+" />
+              <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Formations</p>
+            </div>
+            
+            <div className="flex flex-col items-center">
+              <AnimatedCounter end={500} prefix="+" />
+              <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Étudiants</p>
+            </div>
+            
+            <div className="flex flex-col items-center">
+              <AnimatedCounter end={300} prefix="+" suffix=" h" />
+              <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">De Vidéos</p>
+            </div>
+            
+            <div className="flex flex-col items-center">
+              <AnimatedCounter end={15} />
+              <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Instructeurs</p>
+            </div>
+            
+            <div className="flex flex-col items-center col-span-2 md:col-span-1 border-l-0 md:border-l">
+              <AnimatedCounter end={95} suffix="%" />
+              <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Satisfaction</p>
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* 3. FONCTIONNALITÉS (Pourquoi nous choisir) */}
+      {/* 3. FONCTIONNALITÉS */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
@@ -162,4 +218,4 @@ export default function Home() {
 
     </div>
   );
-} 
+}
