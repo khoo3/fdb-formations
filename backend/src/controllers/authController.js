@@ -5,7 +5,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 // 1. Configurer la connexion à PostgreSQL (Nouveauté Prisma 7)
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const pool = new Pool({ 
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false } 
+});
 const adapter = new PrismaPg(pool);
 
 // 2. Initialiser Prisma avec l'adaptateur
