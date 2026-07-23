@@ -25,7 +25,7 @@ export default function CoursePlayer() {
       const token = localStorage.getItem('token');
       if (!token) return navigate('/');
 
-      const response = await axios.get(`http://localhost:5000/api/courses/${courseId}`, {
+      const response = await axios.get(`https://fdb-formations-production.up.railway.app/api/courses/${courseId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -65,7 +65,7 @@ export default function CoursePlayer() {
   const toggleComplete = async (lessonId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`http://localhost:5000/api/courses/${courseId}/lessons/${lessonId}/progress`, {}, {
+      await axios.post(`https://fdb-formations-production.up.railway.app/api/courses/${courseId}/lessons/${lessonId}/progress`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchCourseData(); // Recharge le cours pour mettre à jour la barre de progression

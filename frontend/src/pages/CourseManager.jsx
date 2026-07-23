@@ -20,7 +20,7 @@ export default function CourseManager() {
   const fetchCourse = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5000/api/courses/${courseId}`, {
+      const response = await axios.get(`https://fdb-formations-production.up.railway.app/api/courses/${courseId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCourse(response.data);
@@ -46,13 +46,13 @@ export default function CourseManager() {
       
       if (editingLessonId) {
         // SI MODE MODIFICATION (PUT)
-        await axios.put(`http://localhost:5000/api/courses/${courseId}/lessons/${editingLessonId}`, newLesson, {
+        await axios.put(`https://fdb-formations-production.up.railway.app/api/courses/${courseId}/lessons/${editingLessonId}`, newLesson, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert("Leçon modifiée avec succès !");
       } else {
         // SI MODE AJOUT (POST)
-        await axios.post(`http://localhost:5000/api/courses/${courseId}/lessons`, newLesson, {
+        await axios.post(`https://fdb-formations-production.up.railway.app/api/courses/${courseId}/lessons`, newLesson, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert("Leçon ajoutée avec succès !");
@@ -88,7 +88,7 @@ export default function CourseManager() {
     
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/courses/${courseId}/lessons/${lessonId}`, {
+      await axios.delete(`https://fdb-formations-production.up.railway.app/api/courses/${courseId}/lessons/${lessonId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchCourse();
@@ -102,7 +102,7 @@ export default function CourseManager() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/courses/${courseId}`, editCourseData, {
+      await axios.put(`https://fdb-formations-production.up.railway.app/api/courses/${courseId}`, editCourseData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert("Formation mise à jour !");
@@ -119,7 +119,7 @@ export default function CourseManager() {
     
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/courses/${courseId}`, {
+      await axios.delete(`https://fdb-formations-production.up.railway.app/api/courses/${courseId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert("Formation supprimée.");
