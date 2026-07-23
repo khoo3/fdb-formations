@@ -17,7 +17,7 @@ function App() {
 
         {/* ROUTES AVEC NAVBAR GLOBALE (Dans le Layout) */}
         <Route element={<Layout />}>
-          <Route path="/home" element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/courses/:courseId" element={<CoursePlayer />} />

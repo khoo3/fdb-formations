@@ -33,7 +33,7 @@ export default function Login() {
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
         
-        navigate('/home'); // TODO: Bientôt, on redirigera l'utilisateur vers son Dashboard ici !
+        navigate('/'); // TODO: Bientôt, on redirigera l'utilisateur vers son Dashboard ici !
         // TODO: Bientôt, on redirigera l'utilisateur vers son Dashboard ici !
 
       } else {
